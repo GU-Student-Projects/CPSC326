@@ -22,6 +22,7 @@ class ASTParser:
         """
         self.lexer = lexer
         self.curr_token = None
+        self.struct_defs = {}
 
     def parse(self):
         """Start the parser, returning a Program AST node."""
@@ -129,6 +130,7 @@ class ASTParser:
         fields_node = []
         self.fields(fields_node)
         self.eat(TokenType.RBRACE, "Expected RBRACE")
+        self.struct_defs[name.lexeme] = []
         program_node.struct_defs.append(StructDef(name, fields_node))
 
     def fields(self, fields_node):
@@ -486,6 +488,7 @@ class ASTParser:
 
     def call_expr(self, skip_id, skipped_id):
         args = []
+        arg_types = []
         if (not skip_id):
             fun_name = self.curr_token
             self.eat(TokenType.ID, "Expected ID")
@@ -493,19 +496,40 @@ class ASTParser:
             fun_name = skipped_id
         self.eat(TokenType.LPAREN, " Expected LPAREN")
         while (not self.match(TokenType.RPAREN)):
+            match self.curr_token.token_type:
+                case TokenType.ID:
+                    added = False
+                    for _def in self.struct_defs:
+                        for val in self.struct_defs[_def]:
+                            if (val == self.curr_token.lexeme):
+                                arg_types.append(_def)
+                case TokenType.INT_VAL:
+                    arg_types.append("int")
+                case TokenType.STRING_VAL:
+                    arg_types.append("string")
+                case TokenType.DOUBLE_VAL:
+                    arg_types.append("double")
+                case TokenType.BOOL_VAL:
+                    arg_types.append("bool")
+                case TokenType.NOT:
+                    arg_types.append("bool")
+                case _:
+                    arg_types.append("expr")
             args.append(self.expr())
             if (not self.match(TokenType.RPAREN)):
                 self.eat(TokenType.COMMA, " Expected COMMA")
         self.eat(TokenType.RPAREN, " Expected RPAREN")
-        return CallExpr(fun_name, args)
+        return CallExpr(fun_name, args, arg_types)
 
     def vdecl_stmt(self, skipID, var_def):
         expr = None
         if (not skipID):
             var_def.data_type = self.data_type()
             var_def.var_name = self.curr_token
+            self.struct_defs[var_def.data_type.type_name.lexeme].append(var_def.var_name.lexeme)
         else:
             var_def.var_name = self.curr_token
+            self.struct_defs[var_def.data_type.type_name.lexeme].append(var_def.var_name.lexeme)
         self.eat(TokenType.ID, "Expected ID")
         if (self.match(TokenType.ASSIGN)):
             self.eat(TokenType.ASSIGN, " Expected ASSIGN")

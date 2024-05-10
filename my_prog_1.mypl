@@ -1,14 +1,31 @@
+struct T {
+    int x;
+}
+
 void testOverload() {
     print("no params");
 }
 
 void testOverload(int i) {
-    print("one param: " + i);
+    print("one param: " + itos(i));
+}
+
+void testOverload(string s) {
+    print ("string param: " + s);
+}
+
+void testOverload(T t) {
+    print(t.x);
 }
 
 void main() {
     testOverload();
     print("\n");
     testOverload(1);
+    print("\n");
+    testOverload("Hello World!");
+    print("\n");
+    T t = new T(5);
+    testOverload(t);
     print("\n");
 }

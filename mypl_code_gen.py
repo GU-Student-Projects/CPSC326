@@ -50,6 +50,7 @@ class CodeGenerator(Visitor):
         return_stmts = []
         self.var_table.push_environment()
         for param in fun_def.params:
+            self.curr_template.function_name += ("_" + param.data_type.type_name.lexeme)
             self.var_table.add(param.var_name.lexeme)
             self.add_instr(STORE(self.var_table.get(param.var_name.lexeme)))
         last_stmt = None
@@ -208,7 +209,11 @@ class CodeGenerator(Visitor):
             case "get":
                 self.add_instr(GETC())
             case _:
-                self.add_instr(CALL(call_expr.fun_name.lexeme))
+                call_arg_types = ""
+                for type in call_expr.arg_types:
+                    call_arg_types += ("_" + type)
+                call_name = call_expr.fun_name.lexeme + call_arg_types
+                self.add_instr(CALL(call_name))
 
 
     def visit_expr(self, expr):

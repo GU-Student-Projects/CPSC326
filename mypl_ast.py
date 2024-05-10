@@ -144,6 +144,7 @@ class Expr:
 class CallExpr(Stmt, RValue):
     fun_name: Token
     args: List[Expr]
+    arg_types: List[str]
     def accept(self, visitor):
         visitor.visit_call_expr(self)
         
