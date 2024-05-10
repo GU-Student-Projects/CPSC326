@@ -1,0 +1,14 @@
+void testOverload() {
+    print("no params");
+}
+
+void testOverload(int i) {
+    print("one param: " + i);
+}
+
+void main() {
+    testOverload();
+    print("\n");
+    testOverload(1);
+    print("\n");
+}
