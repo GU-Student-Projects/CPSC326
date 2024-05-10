@@ -504,6 +504,7 @@ class ASTParser:
                         for val in self.struct_defs[_def]:
                             if (val == self.curr_token.lexeme):
                                 arg_types.append(_def)
+                                added = True
                     if (not added):
                         if (self.var_bindings.__contains__(self.curr_token.lexeme)):
                             arg_types.append(self.var_bindings[self.curr_token.lexeme])
