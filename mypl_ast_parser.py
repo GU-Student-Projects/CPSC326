@@ -23,6 +23,7 @@ class ASTParser:
         self.lexer = lexer
         self.curr_token = None
         self.struct_defs = {}
+        self.var_bindings = {}
 
     def parse(self):
         """Start the parser, returning a Program AST node."""
@@ -503,6 +504,9 @@ class ASTParser:
                         for val in self.struct_defs[_def]:
                             if (val == self.curr_token.lexeme):
                                 arg_types.append(_def)
+                    if (not added):
+                        if (self.var_bindings.__contains__(self.curr_token.lexeme)):
+                            arg_types.append(self.var_bindings[self.curr_token.lexeme])
                 case TokenType.INT_VAL:
                     arg_types.append("int")
                 case TokenType.STRING_VAL:
@@ -526,10 +530,16 @@ class ASTParser:
         if (not skipID):
             var_def.data_type = self.data_type()
             var_def.var_name = self.curr_token
-            self.struct_defs[var_def.data_type.type_name.lexeme].append(var_def.var_name.lexeme)
+            if (self.struct_defs.__contains__(var_def.data_type.type_name.lexeme)):
+                self.struct_defs[var_def.data_type.type_name.lexeme].append(var_def.var_name.lexeme)
+            else:
+                self.var_bindings[var_def.var_name.lexeme] = var_def.data_type.type_name.lexeme
         else:
             var_def.var_name = self.curr_token
-            self.struct_defs[var_def.data_type.type_name.lexeme].append(var_def.var_name.lexeme)
+            if (self.struct_defs.__contains__(var_def.data_type.type_name.lexeme)):
+                self.struct_defs[var_def.data_type.type_name.lexeme].append(var_def.var_name.lexeme)
+            else:
+                self.var_bindings[var_def.var_name.lexeme] = var_def.data_type.type_name.lexeme
         self.eat(TokenType.ID, "Expected ID")
         if (self.match(TokenType.ASSIGN)):
             self.eat(TokenType.ASSIGN, " Expected ASSIGN")

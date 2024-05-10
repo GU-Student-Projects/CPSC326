@@ -15,7 +15,14 @@ void testOverload(string s) {
 }
 
 void testOverload(T t) {
-    print(t.x);
+    int i = t.x;
+    print("The x value is: " + itos(i));
+}
+
+
+double testOverload(int i, int i2) {
+    double d = itod(i) * itod(i2);
+    return d;
 }
 
 void main() {
@@ -28,4 +35,6 @@ void main() {
     T t = new T(5);
     testOverload(t);
     print("\n");
+    double d = testOverload(5, 6);
+    print(dtos(d));
 }
